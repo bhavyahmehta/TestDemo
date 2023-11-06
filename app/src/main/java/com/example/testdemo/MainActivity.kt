@@ -1,4 +1,4 @@
-package com.example.testdemo.ui
+package com.example.testdemo
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,12 +8,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.testdemo.test.presentation.StartTestScreen
+import com.example.testdemo.test.presentation.TestScreen
+import com.example.testdemo.test.presentation.TestViewModel
 import com.example.testdemo.ui.theme.TestDemoTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,24 +39,15 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TestComposableApp() {
     val navController = rememberNavController()
+
     NavHost(navController = navController, startDestination = "startTest") {
         composable(route = "startTest") {
-            StartTestScreen(onClick = {
-                navController.navigate("test")
-            })
+            StartTestScreen(navController)
         }
 
         composable(route = "test") {
-            TestScreen()
+            val testViewModel:TestViewModel = hiltViewModel()
+            TestScreen(testViewModel)
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TestDemoTheme {
-        StartTestScreen(onClick = {})
     }
 }
