@@ -71,7 +71,7 @@ fun TestScreen(testViewModel: TestViewModel) {
                 items(testViewModel.options) { option ->
                     SingleSelectionCard(option,
                         selectedValue = selectedOption.value,
-                        onClickListener = { selected ->
+                        onSelectListener = { selected ->
                             selectedOption.value = selected
                             testViewModel.onOptionClicked(selected)
                         }) }
@@ -94,13 +94,13 @@ fun TestScreen(testViewModel: TestViewModel) {
 }
 
 @Composable
-fun SingleSelectionCard(option: Option,selectedValue:Option?,onClickListener: (Option) -> Unit) {
+fun SingleSelectionCard(option: Option, selectedValue:Option?, onSelectListener: (Option) -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp)
             .clickable(true, onClick = {
-                onClickListener(option)
+                onSelectListener(option)
             })
     ) {
         Text(

@@ -1,0 +1,70 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "question": "You’re really busy at work and a colleague is telling you their life story and personal woes. You:",
+      "options": [
+        {
+          "id": "1.1",
+          "option": "A: Don’t dare to interrupt them"
+        },
+        {
+          "id": "1.2",
+          "option": "B: Think it’s more important to give them some of your time; work can wait"
+        },
+        {
+          "id": "1.3",
+          "option": "C: Listen, but with only with half an ear"
+        },
+        {
+          "id": "1.4",
+          "option": "D: Interrupt and explain that you are really busy at the moment"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "question": "You’ve been sitting in the doctor’s waiting room for more than 25 minutes. You:",
+      "options": [
+        {
+          "id": "2.1",
+          "option": "A: Look at your watch every two minutes"
+        },
+        {
+          "id": "2.2",
+          "option": "B: Bubble with inner anger, but keep quiet"
+        },
+        {
+          "id": "2.3",
+          "option": "C: Explain to other equally impatient people in the room that the doctor is always running late"
+        },
+        {
+          "id": "2.4",
+          "option": "D: Complain in a loud voice, while tapping your foot impatiently"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "question": "You’re having an animated discussion with a colleague regarding a project that you’re in charge of. You:",
+      "options": [
+        {
+          "id": "3.1",
+          "option": "A: Don’t dare contradict them"
+        },
+        {
+          "id": "3.2",
+          "option": "B: Think that they are obviously right"
+        },
+        {
+          "id": "3.3",
+          "option": "C: Defend your own point of view, tooth and nail"
+        },
+        {
+          "id": "3.4",
+          "option": "D: Continuously interrupt your colleague"
+        }
+      ]
+    }
+  ]
+}
