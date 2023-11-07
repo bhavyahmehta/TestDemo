@@ -27,7 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.testdemo.test.domain.Option
+import com.example.testdemo.test.domain.model.Option
 import com.example.testdemo.ui.theme.Pink80
 import com.example.testdemo.ui.theme.Purple80
 import com.example.testdemo.ui.theme.PurpleGrey40
@@ -109,7 +109,7 @@ fun SingleSelectionCard(option: Option, selectedValue:Option?, onSelectListener:
                 .clip(RoundedCornerShape(14.dp))
                 .background(if (option.id == selectedValue?.id) Pink80 else Purple80)
                 .padding(8.dp),
-            text = option.text,
+            text = option.option,
             fontSize = 14.sp,
             color = PurpleGrey40
         )
