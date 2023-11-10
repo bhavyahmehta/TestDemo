@@ -6,15 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.testdemo.test.presentation.StartTestScreen
-import com.example.testdemo.test.presentation.TestScreen
-import com.example.testdemo.test.presentation.TestViewModel
+import com.example.testdemo.core.navigation.TestDemoNavHost
 import com.example.testdemo.ui.theme.TestDemoTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,25 +22,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    TestComposableApp()
+                    TestDemoNavHost()
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun TestComposableApp() {
-    val navController = rememberNavController()
-
-    NavHost(navController = navController, startDestination = "startTest") {
-        composable(route = "startTest") {
-            StartTestScreen(navController)
-        }
-
-        composable(route = "test") {
-            val testViewModel:TestViewModel = hiltViewModel()
-            TestScreen(testViewModel)
         }
     }
 }
