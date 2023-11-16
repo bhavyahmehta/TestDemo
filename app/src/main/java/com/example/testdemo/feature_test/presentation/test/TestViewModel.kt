@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.testdemo.core.di.IoDispatcher
 import com.example.testdemo.feature_test.domain.TestUseCases
 import com.example.testdemo.feature_test.domain.model.Option
+import com.example.testdemo.feature_test.domain.model.QuestionWithOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -23,10 +24,9 @@ class TestViewModel @Inject constructor(
     private val _state = mutableStateOf(TestStates())
     val state: State<TestStates> = _state
     private var getTestJob: Job? = null
-
-    /*init {
-        getTestData()
-    }*/
+    private var allTestData = listOf<QuestionWithOptions>()
+    private var currentQuestionDisplayIndex = 0
+    private var currentSelectedOption: Option? = null
 
     private val errorHandler = CoroutineExceptionHandler { _, exception ->
         exception.printStackTrace()
@@ -36,19 +36,38 @@ class TestViewModel @Inject constructor(
         )
     }
 
-    fun getTestData() {
+    fun getInitialTestData() {
         getTestJob?.cancel()
         getTestJob = viewModelScope.launch(dispatcher + errorHandler) { // + errorHandler
+            allTestData = testUseCases.getTestData()
             _state.value = _state.value.copy(
-                testData = testUseCases.getTestData(),
+                displayData = getCurrentQuestionWithOptions(),
                 isLoading = false
             )
         }
     }
 
+    private fun getCurrentQuestionWithOptions() =
+        if (currentQuestionDisplayIndex < allTestData.size) allTestData[currentQuestionDisplayIndex] else null
+
+    fun getNextTestData() {
+        if (currentSelectedOption != null) {
+            currentQuestionDisplayIndex++
+            _state.value = _state.value.copy(
+                displayData = getCurrentQuestionWithOptions(),
+                isLoading = false
+            )
+        } else {
+            _state.value = _state.value.copy(
+                displayData = getCurrentQuestionWithOptions(),
+                isLoading = false,
+                showOptionNotSelectedError = true
+            )
+        }
+    }
+
     fun onOptionClicked(selectedOption: Option) {
-        // options.forEach { it.isSelected = false }
-        //options.find { it.id == selectedOption.id }?.isSelected = true
+        currentSelectedOption = selectedOption
     }
 
 }

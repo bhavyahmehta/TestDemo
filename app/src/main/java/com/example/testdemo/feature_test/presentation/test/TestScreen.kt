@@ -29,17 +29,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.testdemo.R
 import com.example.testdemo.core.constants.ContentDescriptions
+import com.example.testdemo.core.utility.ShowAlertDialog
 import com.example.testdemo.feature_test.domain.model.Option
 import com.example.testdemo.ui.theme.Pink80
 import com.example.testdemo.ui.theme.Purple80
 import com.example.testdemo.ui.theme.PurpleGrey40
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,9 +49,10 @@ fun TestScreen(testViewModel: TestViewModel) {
 
     val state = testViewModel.state.value
     val selectedOption = rememberSaveable { mutableStateOf<Option?>(null) }
+    val noOptionSelectedPopupShown = rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = true){
-        testViewModel.getTestData()
+    LaunchedEffect(key1 = true) {
+        testViewModel.getInitialTestData()
     }
 
     Scaffold(
@@ -61,7 +64,7 @@ fun TestScreen(testViewModel: TestViewModel) {
                 ),
                 title = {
                     Text(
-                        text = "Test",
+                        text = stringResource(id = R.string.test),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -70,9 +73,9 @@ fun TestScreen(testViewModel: TestViewModel) {
         },
     ) { innerPadding ->
         Box {
-            if (state.testData.isNotEmpty()) {
-                val questionWithOptions = state.testData.first()
-                val question = questionWithOptions.question
+            if (state.displayData != null) {
+                val displayQuestionWithOptions = state.displayData
+                val question = displayQuestionWithOptions.question
 
                 Column(
                     modifier = Modifier
@@ -88,7 +91,7 @@ fun TestScreen(testViewModel: TestViewModel) {
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                     LazyColumn(modifier = Modifier.weight(1f)) {
-                        items(questionWithOptions.options) { option ->
+                        items(displayQuestionWithOptions.options) { option ->
                             SingleSelectionCard(option,
                                 selectedValue = selectedOption.value,
                                 onSelectListener = { selected ->
@@ -98,14 +101,20 @@ fun TestScreen(testViewModel: TestViewModel) {
                         }
                     }
                     Button(
-                        onClick = { },
+                        onClick = {
+                            if (selectedOption.value!=null) {
+                                testViewModel.getNextTestData()
+                            } else {
+                                noOptionSelectedPopupShown.value = true
+                            }
+                        },
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "Next".uppercase(),
+                            text = stringResource(id = R.string.next).uppercase(),
                             fontSize = 16.sp,
                             modifier = Modifier.padding(4.dp)
                         )
@@ -127,7 +136,9 @@ fun TestScreen(testViewModel: TestViewModel) {
             }
             if (state.error != null) {
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -135,6 +146,15 @@ fun TestScreen(testViewModel: TestViewModel) {
                         text = state.error
                     )
                 }
+            }
+            if (noOptionSelectedPopupShown.value){
+                ShowAlertDialog( title = null,
+                    description = stringResource(id = R.string.select_option),
+                    confirmButtonText = null,
+                    onConfirmButtonClick = {},
+                    dismissButtonText = stringResource(id = R.string.ok),
+                    onDismissButtonClick = {noOptionSelectedPopupShown.value = false},
+                    onDismissDialog = { noOptionSelectedPopupShown.value = false})
             }
         }
     }

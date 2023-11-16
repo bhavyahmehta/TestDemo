@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">TestDemo</string>
     <string name="start_test">Start Test</string>
+    <string name="next">Next</string>
+    <string name="alert">Alert\n</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="select_option">Select Option\n</string>
+    <string name="ok">OK</string>
+    <string name="test">Test</string>
 </resources>
