@@ -1,10 +1,12 @@
 package com.example.testdemo.feature_test.presentation.test
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -36,128 +38,202 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.testdemo.R
+import com.example.testdemo.core.composables.BigRoundedButton
 import com.example.testdemo.core.constants.ContentDescriptions
 import com.example.testdemo.core.utility.ShowAlertDialog
 import com.example.testdemo.feature_test.domain.model.Option
+import com.example.testdemo.feature_test.domain.model.Question
+import com.example.testdemo.feature_test.domain.model.QuestionWithOptions
 import com.example.testdemo.ui.theme.Pink80
 import com.example.testdemo.ui.theme.Purple80
 import com.example.testdemo.ui.theme.PurpleGrey40
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TestScreen(testViewModel: TestViewModel) {
+fun TestScreen(testViewModel: TestViewModel, onClickBack: () -> Boolean) {
 
     val state = testViewModel.state.value
     val selectedOption = rememberSaveable { mutableStateOf<Option?>(null) }
-    val noOptionSelectedPopupShown = rememberSaveable { mutableStateOf(false) }
+    val noOptionSelectedAlert = rememberSaveable { mutableStateOf(false) }
+    val exitTestAlert = rememberSaveable { mutableStateOf(false) }
+    val navigateToStartTest = rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(key1 = true) {
         testViewModel.getInitialTestData()
     }
 
+    BackHandler {
+        exitTestAlert.value = true
+    }
+
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.test),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            )
+            TopBar()
         },
     ) { innerPadding ->
         Box {
             if (state.displayData != null) {
                 val displayQuestionWithOptions = state.displayData
                 val question = displayQuestionWithOptions.question
-
-                Column(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .align(Alignment.CenterHorizontally),
-                        text = question.question,
-                        fontSize = 20.sp,
-                        color = PurpleGrey40
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
-                    LazyColumn(modifier = Modifier.weight(1f)) {
-                        items(displayQuestionWithOptions.options) { option ->
-                            SingleSelectionCard(option,
-                                selectedValue = selectedOption.value,
-                                onSelectListener = { selected ->
-                                    selectedOption.value = selected
-                                    testViewModel.onOptionClicked(selected)
-                                })
-                        }
-                    }
-                    Button(
-                        onClick = {
-                            if (selectedOption.value!=null) {
-                                testViewModel.getNextTestData()
-                            } else {
-                                noOptionSelectedPopupShown.value = true
-                            }
-                        },
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.next).uppercase(),
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(4.dp)
-                        )
-                    }
-                }
+                ShowQuestionWithOptions(
+                    innerPadding,
+                    question,
+                    displayQuestionWithOptions,
+                    selectedOption,
+                    testViewModel,
+                    noOptionSelectedAlert
+                )
             }
             if (state.isLoading) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CircularProgressIndicator(
-                        Modifier.semantics {
-                            this.contentDescription = ContentDescriptions.LOADING_INDICATOR
-                        }
-                    )
-                }
+                ShowLoading()
             }
             if (state.error != null) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = state.error
-                    )
-                }
+                ShowError(state)
             }
-            if (noOptionSelectedPopupShown.value){
-                ShowAlertDialog( title = null,
-                    description = stringResource(id = R.string.select_option),
-                    confirmButtonText = null,
-                    onConfirmButtonClick = {},
-                    dismissButtonText = stringResource(id = R.string.ok),
-                    onDismissButtonClick = {noOptionSelectedPopupShown.value = false},
-                    onDismissDialog = { noOptionSelectedPopupShown.value = false})
+            if (noOptionSelectedAlert.value) {
+                ShowNoOptionSelectedAlert(noOptionSelectedAlert)
+            }
+            if (exitTestAlert.value) {
+                ShowExitTestAlert(exitTestAlert, navigateToStartTest)
+            }
+            if (navigateToStartTest.value) {
+                onClickBack()
             }
         }
     }
+}
+
+@Composable
+private fun ShowQuestionWithOptions(
+    innerPadding: PaddingValues,
+    question: Question,
+    displayQuestionWithOptions: QuestionWithOptions,
+    selectedOption: MutableState<Option?>,
+    testViewModel: TestViewModel,
+    noOptionSelectedAlert: MutableState<Boolean>,
+) {
+    Column(
+        modifier = Modifier
+            .padding(innerPadding)
+    ) {
+        Text(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.CenterHorizontally),
+            text = question.question,
+            fontSize = 20.sp,
+            color = PurpleGrey40
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            items(displayQuestionWithOptions.options) { option ->
+                SingleSelectionCard(option,
+                    selectedValue = selectedOption.value,
+                    onSelectListener = { selected ->
+                        selectedOption.value = selected
+                        testViewModel.onOptionClicked(selected)
+                    })
+            }
+        }
+        NextQuestionButton(selectedOption, testViewModel, noOptionSelectedAlert)
+    }
+}
+
+@Composable
+private fun NextQuestionButton(
+    selectedOption: MutableState<Option?>,
+    testViewModel: TestViewModel,
+    noOptionSelectedAlert: MutableState<Boolean>,
+) {
+    BigRoundedButton(onClick = {
+        if (selectedOption.value != null) {
+            testViewModel.getNextTestData()
+        } else {
+            noOptionSelectedAlert.value = true
+        }
+    }, title = stringResource(id = R.string.next).uppercase())
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun TopBar() {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primary,
+        ),
+        title = {
+            Text(
+                text = stringResource(id = R.string.test),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    )
+}
+
+@Composable
+private fun ShowError(state: TestStates) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = state.error ?: ""
+        )
+    }
+}
+
+@Composable
+private fun ShowLoading() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator(
+            Modifier.semantics {
+                this.contentDescription = ContentDescriptions.LOADING_INDICATOR
+            }
+        )
+    }
+}
+
+@Composable
+private fun ShowNoOptionSelectedAlert(noOptionSelectedAlert: MutableState<Boolean>) {
+    ShowAlertDialog(title = null,
+        description = stringResource(id = R.string.select_option),
+        confirmButtonText = null,
+        onConfirmButtonClick = {},
+        dismissButtonText = stringResource(id = R.string.ok),
+        onDismissButtonClick = { noOptionSelectedAlert.value = false },
+        onDismissDialog = { noOptionSelectedAlert.value = false })
+}
+
+@Composable
+private fun ShowExitTestAlert(
+    exitTestAlert: MutableState<Boolean>,
+    navigateToStartTest: MutableState<Boolean>,
+) {
+    ShowAlertDialog(title = null,
+        description = stringResource(id = R.string.exit_test_alert),
+        confirmButtonText = stringResource(id = R.string.yes),
+        onConfirmButtonClick = {
+            exitTestAlert.value = false
+            navigateToStartTest.value = true
+        },
+        dismissButtonText = stringResource(id = R.string.no),
+        onDismissButtonClick = {
+            exitTestAlert.value = false
+            navigateToStartTest.value = false
+        },
+        onDismissDialog = {
+            exitTestAlert.value = false
+            navigateToStartTest.value = false
+        })
 }
 
 @Composable

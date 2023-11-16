@@ -6,6 +6,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.example.testdemo.R
 import com.example.testdemo.core.extensions.isValid
 import com.example.testdemo.ui.theme.TestDemoTheme
@@ -28,12 +30,17 @@ fun ShowAlertDialog(
                 },
                 title = {
                     if (title.isValid()) {
-                        Text(text = title!!)
+                        Text(text = title!!,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                            )
                     }
                 },
                 text = {
                     if (description.isValid()) {
-                        Text(text = description!!)
+                        Text(text = description!!,
+                            fontSize = 16.sp
+                            )
                     }
                 },
                 confirmButton = {
@@ -42,7 +49,8 @@ fun ShowAlertDialog(
                             onClick = {
                                 onConfirmButtonClick()
                             }) {
-                            Text(text = confirmButtonText!!)
+                            Text(text = confirmButtonText!!,
+                                fontWeight = FontWeight.Bold)
                         }
                     }
                 },
@@ -52,7 +60,10 @@ fun ShowAlertDialog(
                             onClick = {
                                 onDismissButtonClick()
                             }) {
-                            Text(text = dismissButtonText!!)
+                            Text(
+                                text = dismissButtonText!!,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }
