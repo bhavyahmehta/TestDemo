@@ -1,10 +1,9 @@
 TestDemo App
 ==================
 
-This simple android project has small quiz.  
-Contains questions with few options.At the end it displays selected options as result.
+This android project has small quiz. Contains questions with few options. At the end it displays selected options as result.
   
-  
+     
 <table style="padding:10px">
   <tr>
     <td> 
@@ -15,10 +14,10 @@ Contains questions with few options.At the end it displays selected options as r
     </td>
   </tr>
 </table>
-
-    
+   
+       
 This project..
-
+  
 * Follows modern android application development(MAD).
 * Kotlin is used as primary coding language.
 * Jetpack Compose is used for user interface(UI).
@@ -31,8 +30,8 @@ This project..
 * Data Layer - Repositories, Local and remote data sources
 * Domain Layer - Use cases with business logic
 * Presentation Layer - Activity, Composable functions and ViewModels
+    
   
-
 This project can be use as starter template to create new android application.  
 In future, I will add UI and unit testcases.  
 Bugs, suggestions and improvements are welcome.  
