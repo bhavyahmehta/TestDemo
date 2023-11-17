@@ -6,5 +6,4 @@ data class TestStates(
     val error: String? = null,
     val isLoading: Boolean = true,
     val displayData: QuestionWithOptions? = null,
-    val showOptionNotSelectedError:Boolean = false
 )

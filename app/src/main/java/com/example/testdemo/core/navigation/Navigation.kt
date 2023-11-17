@@ -7,17 +7,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.testdemo.feature_test.presentation.StartTestScreen
+import com.example.testdemo.feature_test.presentation.TestResultScreen
 import com.example.testdemo.feature_test.presentation.test.TestScreen
 import com.example.testdemo.feature_test.presentation.test.TestViewModel
 
 enum class Screen {
     START_TEST,
     TEST,
+    RESULT
 }
 
 sealed class NavigationItem(val route: String) {
     data object StartTest : NavigationItem(Screen.START_TEST.name)
     data object Test : NavigationItem(Screen.TEST.name)
+    data object Result : NavigationItem(Screen.RESULT.name)
 }
 
 
@@ -25,6 +28,8 @@ sealed class NavigationItem(val route: String) {
 fun TestDemoNavHost(
     navController: NavHostController = rememberNavController(),
 ) {
+
+    val testViewModel: TestViewModel = hiltViewModel()
     NavHost(
         navController = navController,
         startDestination = NavigationItem.StartTest.route,
@@ -37,9 +42,16 @@ fun TestDemoNavHost(
         }
 
         composable(route = NavigationItem.Test.route) {
-            val testViewModel: TestViewModel = hiltViewModel()
             TestScreen(testViewModel = testViewModel,
-                onClickBack = { navController.navigateUp() })
+                onClickBack = { navController.navigateUp() },
+                onClickFinishTest = { navController.navigate(NavigationItem.Result.route) })
+        }
+
+        composable(route = NavigationItem.Result.route) {
+            TestResultScreen(
+                testViewModel = testViewModel,
+                onClickBack = { navController.popBackStack( NavigationItem.StartTest.route, false)
+            })
         }
     }
 }

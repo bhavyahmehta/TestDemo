@@ -15,31 +15,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.testdemo.R
 import com.example.testdemo.core.composables.BigRoundedButton
-import com.example.testdemo.core.constants.ContentDescriptions
+import com.example.testdemo.core.composables.CenterAlignedTestTopAppBar
+import com.example.testdemo.core.composables.ShowCircularLoading
 import com.example.testdemo.core.utility.ShowAlertDialog
 import com.example.testdemo.feature_test.domain.model.Option
 import com.example.testdemo.feature_test.domain.model.Question
@@ -50,13 +45,17 @@ import com.example.testdemo.ui.theme.PurpleGrey40
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TestScreen(testViewModel: TestViewModel, onClickBack: () -> Boolean) {
+fun TestScreen(
+    testViewModel: TestViewModel,
+    onClickBack: () -> Boolean,
+    onClickFinishTest: () -> Unit,
+) {
 
     val state = testViewModel.state.value
+    val isLastQuestion = testViewModel.isLastQuestion
     val selectedOption = rememberSaveable { mutableStateOf<Option?>(null) }
     val noOptionSelectedAlert = rememberSaveable { mutableStateOf(false) }
     val exitTestAlert = rememberSaveable { mutableStateOf(false) }
-    val navigateToStartTest = rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(key1 = true) {
         testViewModel.getInitialTestData()
@@ -68,7 +67,9 @@ fun TestScreen(testViewModel: TestViewModel, onClickBack: () -> Boolean) {
 
     Scaffold(
         topBar = {
-            TopBar()
+            CenterAlignedTestTopAppBar(
+                title = stringResource(id = R.string.test)
+            )
         },
     ) { innerPadding ->
         Box {
@@ -81,11 +82,13 @@ fun TestScreen(testViewModel: TestViewModel, onClickBack: () -> Boolean) {
                     displayQuestionWithOptions,
                     selectedOption,
                     testViewModel,
-                    noOptionSelectedAlert
+                    noOptionSelectedAlert,
+                    isLastQuestion,
+                    onClickFinishTest
                 )
             }
             if (state.isLoading) {
-                ShowLoading()
+                ShowCircularLoading()
             }
             if (state.error != null) {
                 ShowError(state)
@@ -94,10 +97,7 @@ fun TestScreen(testViewModel: TestViewModel, onClickBack: () -> Boolean) {
                 ShowNoOptionSelectedAlert(noOptionSelectedAlert)
             }
             if (exitTestAlert.value) {
-                ShowExitTestAlert(exitTestAlert, navigateToStartTest)
-            }
-            if (navigateToStartTest.value) {
-                onClickBack()
+                ShowExitTestAlert(exitTestAlert, onClickBack)
             }
         }
     }
@@ -111,6 +111,8 @@ private fun ShowQuestionWithOptions(
     selectedOption: MutableState<Option?>,
     testViewModel: TestViewModel,
     noOptionSelectedAlert: MutableState<Boolean>,
+    isLastQuestion: State<Boolean>,
+    showResultScreen: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -131,11 +133,10 @@ private fun ShowQuestionWithOptions(
                     selectedValue = selectedOption.value,
                     onSelectListener = { selected ->
                         selectedOption.value = selected
-                        testViewModel.onOptionClicked(selected)
                     })
             }
         }
-        NextQuestionButton(selectedOption, testViewModel, noOptionSelectedAlert)
+        NextQuestionButton(selectedOption, testViewModel, noOptionSelectedAlert, isLastQuestion,showResultScreen)
     }
 }
 
@@ -144,31 +145,32 @@ private fun NextQuestionButton(
     selectedOption: MutableState<Option?>,
     testViewModel: TestViewModel,
     noOptionSelectedAlert: MutableState<Boolean>,
+    isLastQuestion: State<Boolean>,
+    showResultScreen: () -> Unit,
 ) {
-    BigRoundedButton(onClick = {
-        if (selectedOption.value != null) {
-            testViewModel.getNextTestData()
-        } else {
-            noOptionSelectedAlert.value = true
-        }
-    }, title = stringResource(id = R.string.next).uppercase())
-}
+    BigRoundedButton(
+        onClick = {
+            if (selectedOption.value != null) {
+                testViewModel.saveSelectedOption(selectedOption.value!!)
+                if (isLastQuestion.value){
+                    showResultScreen()
+                }else{
+                    testViewModel.getNextTestData()
+                }
+                noOptionSelectedAlert.value = false
+                selectedOption.value = null
 
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar() {
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
-        title = {
-            Text(
-                text = stringResource(id = R.string.test),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+            } else {
+                noOptionSelectedAlert.value = true
+            }
+        }, title = stringResource(
+            id =
+            if (isLastQuestion.value) {
+                R.string.finish
+            } else {
+                R.string.next
+            }
+        ).uppercase()
     )
 }
 
@@ -188,21 +190,6 @@ private fun ShowError(state: TestStates) {
 }
 
 @Composable
-private fun ShowLoading() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        CircularProgressIndicator(
-            Modifier.semantics {
-                this.contentDescription = ContentDescriptions.LOADING_INDICATOR
-            }
-        )
-    }
-}
-
-@Composable
 private fun ShowNoOptionSelectedAlert(noOptionSelectedAlert: MutableState<Boolean>) {
     ShowAlertDialog(title = null,
         description = stringResource(id = R.string.select_option),
@@ -216,23 +203,21 @@ private fun ShowNoOptionSelectedAlert(noOptionSelectedAlert: MutableState<Boolea
 @Composable
 private fun ShowExitTestAlert(
     exitTestAlert: MutableState<Boolean>,
-    navigateToStartTest: MutableState<Boolean>,
+    onClickBack: () -> Boolean,
 ) {
     ShowAlertDialog(title = null,
         description = stringResource(id = R.string.exit_test_alert),
         confirmButtonText = stringResource(id = R.string.yes),
         onConfirmButtonClick = {
             exitTestAlert.value = false
-            navigateToStartTest.value = true
+            onClickBack()
         },
         dismissButtonText = stringResource(id = R.string.no),
         onDismissButtonClick = {
             exitTestAlert.value = false
-            navigateToStartTest.value = false
         },
         onDismissDialog = {
             exitTestAlert.value = false
-            navigateToStartTest.value = false
         })
 }
 

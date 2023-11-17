@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.testdemo.core.di.IoDispatcher
 import com.example.testdemo.feature_test.domain.TestUseCases
 import com.example.testdemo.feature_test.domain.model.Option
+import com.example.testdemo.feature_test.domain.model.Question
 import com.example.testdemo.feature_test.domain.model.QuestionWithOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,10 +24,12 @@ class TestViewModel @Inject constructor(
 
     private val _state = mutableStateOf(TestStates())
     val state: State<TestStates> = _state
+    private val _isLastQuestion = mutableStateOf(false)
+    val isLastQuestion: State<Boolean> = _isLastQuestion
     private var getTestJob: Job? = null
     private var allTestData = listOf<QuestionWithOptions>()
     private var currentQuestionDisplayIndex = 0
-    private var currentSelectedOption: Option? = null
+    var result = mutableMapOf<Question, Option>()
 
     private val errorHandler = CoroutineExceptionHandler { _, exception ->
         exception.printStackTrace()
@@ -51,23 +54,18 @@ class TestViewModel @Inject constructor(
         if (currentQuestionDisplayIndex < allTestData.size) allTestData[currentQuestionDisplayIndex] else null
 
     fun getNextTestData() {
-        if (currentSelectedOption != null) {
-            currentQuestionDisplayIndex++
-            _state.value = _state.value.copy(
-                displayData = getCurrentQuestionWithOptions(),
-                isLoading = false
-            )
-        } else {
-            _state.value = _state.value.copy(
-                displayData = getCurrentQuestionWithOptions(),
-                isLoading = false,
-                showOptionNotSelectedError = true
-            )
+        currentQuestionDisplayIndex++
+        _isLastQuestion.value = false
+        _state.value = _state.value.copy(
+            displayData = getCurrentQuestionWithOptions(),
+            isLoading = false
+        )
+        if (currentQuestionDisplayIndex == allTestData.size - 1) {
+            _isLastQuestion.value = true
         }
     }
 
-    fun onOptionClicked(selectedOption: Option) {
-        currentSelectedOption = selectedOption
+    fun saveSelectedOption(selectedOption: Option) {
+        result[allTestData[currentQuestionDisplayIndex].question] = selectedOption
     }
-
 }

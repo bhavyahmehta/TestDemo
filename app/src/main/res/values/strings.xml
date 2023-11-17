@@ -9,4 +9,7 @@
     <string name="ok">OK</string>
     <string name="test">Test</string>
     <string name="exit_test_alert">Do you want to exit test?</string>
+    <string name="result">Result</string>
+    <string name="exit_result_alert">Back navigation will redirect to start test screen</string>
+    <string name="finish">Finish</string>
 </resources>
