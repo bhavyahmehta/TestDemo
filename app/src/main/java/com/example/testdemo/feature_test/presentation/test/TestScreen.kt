@@ -33,9 +33,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.testdemo.R
-import com.example.testdemo.core.composables.CenterAlignedTestTopAppBar
 import com.example.testdemo.core.composables.FullWidthRoundedCornerButton
 import com.example.testdemo.core.composables.ShowCircularLoading
+import com.example.testdemo.core.composables.TestTopAppBar
 import com.example.testdemo.core.utility.ShowAlertDialog
 import com.example.testdemo.feature_test.domain.model.Option
 import com.example.testdemo.feature_test.domain.model.Question
@@ -48,6 +48,7 @@ fun TestScreen(
     testViewModel: TestViewModel,
     onClickBack: () -> Boolean,
     onClickFinishTest: () -> Unit,
+    hasBackStackEntry: Boolean,
 ) {
 
     val state = testViewModel.state.value
@@ -66,8 +67,10 @@ fun TestScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTestTopAppBar(
-                title = stringResource(id = R.string.test)
+            TestTopAppBar(
+                title = stringResource(id = R.string.test),
+                onClickBack = { exitTestAlert.value = true },
+                hasBackStackEntry
             )
         },
     ) { innerPadding ->

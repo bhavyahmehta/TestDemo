@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.testdemo.R
-import com.example.testdemo.core.composables.CenterAlignedTestTopAppBar
+import com.example.testdemo.core.composables.TestTopAppBar
 import com.example.testdemo.core.utility.ShowAlertDialog
 import com.example.testdemo.feature_test.domain.model.Option
 import com.example.testdemo.feature_test.domain.model.Question
@@ -26,7 +26,11 @@ import com.example.testdemo.feature_test.presentation.test.TestViewModel
 
 // This screen shows result of test with selected options
 @Composable
-fun TestResultScreen(testViewModel: TestViewModel, onClickBack: () -> Boolean) {
+fun TestResultScreen(
+    testViewModel: TestViewModel,
+    onClickBack: () -> Boolean,
+    hasBackStackEntry: Boolean
+) {
 
     val exitResultAlert = rememberSaveable { mutableStateOf(false) }
     val result: Map<Question, Option> = testViewModel.result
@@ -37,8 +41,10 @@ fun TestResultScreen(testViewModel: TestViewModel, onClickBack: () -> Boolean) {
 
     Scaffold(
         topBar = {
-            CenterAlignedTestTopAppBar(
-                title = stringResource(id = R.string.result)
+            TestTopAppBar(
+                title = stringResource(id = R.string.result),
+                onClickBack = { exitResultAlert.value = true },
+                hasBackStackEntry
             )
         },
     ) { innerPadding ->

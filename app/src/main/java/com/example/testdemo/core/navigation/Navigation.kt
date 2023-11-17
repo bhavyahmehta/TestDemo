@@ -42,16 +42,20 @@ fun TestDemoNavHost(
         }
 
         composable(route = NavigationItem.Test.route) {
-            TestScreen(testViewModel = testViewModel,
+            TestScreen(
+                testViewModel = testViewModel,
                 onClickBack = { navController.navigateUp() },
-                onClickFinishTest = { navController.navigate(NavigationItem.Result.route) })
+                onClickFinishTest = { navController.navigate(NavigationItem.Result.route) },
+                hasBackStackEntry = navController.previousBackStackEntry != null
+            )
         }
 
         composable(route = NavigationItem.Result.route) {
             TestResultScreen(
                 testViewModel = testViewModel,
-                onClickBack = { navController.popBackStack( NavigationItem.StartTest.route, false)
-            })
+                onClickBack = { navController.popBackStack(NavigationItem.StartTest.route, false) },
+                hasBackStackEntry = navController.previousBackStackEntry != null
+            )
         }
     }
 }

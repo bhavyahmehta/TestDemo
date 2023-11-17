@@ -40,7 +40,7 @@ class TestViewModel @Inject constructor(
     }
 
     fun getInitialTestData() {
-        getTestJob?.cancel()
+        resetToInitial()
         getTestJob = viewModelScope.launch(dispatcher + errorHandler) { // + errorHandler
             allTestData = testUseCases.getTestData()
             _state.value = _state.value.copy(
@@ -48,6 +48,13 @@ class TestViewModel @Inject constructor(
                 isLoading = false
             )
         }
+    }
+
+    private fun resetToInitial() {
+        _isLastQuestion.value = false
+        currentQuestionDisplayIndex = 0
+        getTestJob?.cancel()
+        result = mutableMapOf()
     }
 
     private fun getCurrentQuestionWithOptions() =
