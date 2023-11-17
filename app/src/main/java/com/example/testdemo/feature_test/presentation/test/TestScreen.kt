@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,17 +33,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.testdemo.R
-import com.example.testdemo.core.composables.BigRoundedButton
 import com.example.testdemo.core.composables.CenterAlignedTestTopAppBar
+import com.example.testdemo.core.composables.FullWidthRoundedCornerButton
 import com.example.testdemo.core.composables.ShowCircularLoading
 import com.example.testdemo.core.utility.ShowAlertDialog
 import com.example.testdemo.feature_test.domain.model.Option
 import com.example.testdemo.feature_test.domain.model.Question
 import com.example.testdemo.feature_test.domain.model.QuestionWithOptions
-import com.example.testdemo.ui.theme.Pink80
-import com.example.testdemo.ui.theme.Purple80
-import com.example.testdemo.ui.theme.PurpleGrey40
 
+// This screen shows question with options to select
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TestScreen(
@@ -124,7 +123,7 @@ private fun ShowQuestionWithOptions(
                 .align(Alignment.CenterHorizontally),
             text = question.question,
             fontSize = 20.sp,
-            color = PurpleGrey40
+            color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(32.dp))
         LazyColumn(modifier = Modifier.weight(1f)) {
@@ -148,7 +147,7 @@ private fun NextQuestionButton(
     isLastQuestion: State<Boolean>,
     showResultScreen: () -> Unit,
 ) {
-    BigRoundedButton(
+    FullWidthRoundedCornerButton(
         onClick = {
             if (selectedOption.value != null) {
                 testViewModel.saveSelectedOption(selectedOption.value!!)
@@ -239,11 +238,17 @@ fun SingleSelectionCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(14.dp))
-                .background(if (option.id == selectedValue?.id) Pink80 else Purple80)
+                .background(if (option.id == selectedValue?.id)
+                    MaterialTheme.colorScheme.tertiary
+                else
+                    MaterialTheme.colorScheme.secondary)
                 .padding(8.dp),
             text = option.option,
             fontSize = 18.sp,
-            color = PurpleGrey40
+            color = if (option.id == selectedValue?.id)
+                MaterialTheme.colorScheme.onTertiary
+            else
+                MaterialTheme.colorScheme.onSecondary
         )
     }
 }

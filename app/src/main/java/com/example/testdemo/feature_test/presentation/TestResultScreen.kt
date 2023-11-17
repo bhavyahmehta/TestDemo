@@ -24,6 +24,7 @@ import com.example.testdemo.feature_test.domain.model.Option
 import com.example.testdemo.feature_test.domain.model.Question
 import com.example.testdemo.feature_test.presentation.test.TestViewModel
 
+// This screen shows result of test with selected options
 @Composable
 fun TestResultScreen(testViewModel: TestViewModel, onClickBack: () -> Boolean) {
 

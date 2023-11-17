@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun BigRoundedButton(onClick: () -> Unit, title: String) {
+fun FullWidthRoundedCornerButton(onClick: () -> Unit, title: String) {
     Button(
         onClick = onClick,
         modifier = Modifier
