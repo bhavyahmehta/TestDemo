@@ -38,8 +38,6 @@ fun TestTopAppBar(title: String, onClickBack: () -> Unit, hasBackStackEntry: Boo
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
-            } else {
-                null
             }
         }
     )
