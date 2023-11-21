@@ -22,16 +22,8 @@ This project can be use as starter template to create new android application.
 In future, I will add UI and unit testcases.  
 Bugs, suggestions and improvements are welcome.
 
-<table>
-  <tr>
-    <td> 
-        <img src="screenshots/Screenshot_1.png">
-    </td>
-    <td>
-        <img src="screenshots/Screenshot_2.png">
-    </td>
-  </tr>
-</table>
+![alt text](https://github.com/bhavyahmehta/TestDemo/blob/master/screenshots/Screenshot_1.png?raw=true)
+
 
 
 
