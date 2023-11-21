@@ -22,13 +22,13 @@ This project can be use as starter template to create new android application.
 In future, I will add UI and unit testcases.  
 Bugs, suggestions and improvements are welcome.
 
-<table style="padding:10px">
+<table>
   <tr>
     <td> 
-        <img src="screenshots/Screenshot_1.png"  alt="1" width = 295px height = 625px >
+        <img src="screenshots/Screenshot_1.png">
     </td>
     <td>
-        <img src="screenshots/Screenshot_2.png"  alt="2" width = 295px height = 625px>
+        <img src="screenshots/Screenshot_2.png">
     </td>
   </tr>
 </table>
